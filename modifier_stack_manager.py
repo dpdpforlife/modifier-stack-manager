@@ -208,8 +208,6 @@ def draw(self, context):
         row = layout.row()
         col = row.column(align=True)
         col.template_list('MODIFIER_UL_modifier_stack', '', ob, 'modifiers', ob, 'active_modifier_index')
-        col.separator()
-        col = col.row(align=True)
         
         col = row.column(align=True)
         col.operator("object.modifier_add", text='', icon='ADD')
@@ -220,7 +218,7 @@ def draw(self, context):
         col.operator("object.modifier_moveup", icon='TRIA_UP', text="")
         col.operator("object.modifier_movedown", icon='TRIA_DOWN', text="")
         
-        row = layout.row()
+        row = layout.row(align=True)
         row.operator('object.apply_selected_modifier', text='Apply Selected')
         row.operator('object.apply_all_modifiers', text='Apply All')
 
