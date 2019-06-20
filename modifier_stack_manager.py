@@ -184,6 +184,7 @@ class MODIFIER_UL_modifier_stack(UIList):
             row = layout.row()
             
             row.prop(md, 'name', text="", emboss=False, icon_value=1, icon = self.get_mod_icon(md))
+            row.prop(md, 'show_in_editmode', text="", emboss=False, icon_only=True)
             row.prop(md, 'show_render', text="", emboss=False, icon_only=True)
             row.prop(md, 'show_viewport', text="", emboss=False, icon_only=True)
         elif self.layout_type == 'GRID':
@@ -209,10 +210,6 @@ def draw(self, context):
         col.template_list('MODIFIER_UL_modifier_stack', '', ob, 'modifiers', ob, 'active_modifier_index')
         col.separator()
         col = col.row(align=True)
-        col.operator('object.apply_selected_modifier', text='Apply Selected')
-        col.operator('object.apply_all_modifiers', text='Apply All')
-        
-        layout.separator()
         
         col = row.column(align=True)
         col.operator("object.modifier_add", text='', icon='ADD')
@@ -222,6 +219,10 @@ def draw(self, context):
         col.separator()
         col.operator("object.modifier_moveup", icon='TRIA_UP', text="")
         col.operator("object.modifier_movedown", icon='TRIA_DOWN', text="")
+        
+        row = layout.row()
+        row.operator('object.apply_selected_modifier', text='Apply Selected')
+        row.operator('object.apply_all_modifiers', text='Apply All')
 
 class DATA_PT_my_modifiers(MyModifierButtonsPanel, Panel):
     bl_label = "Modifiers"
@@ -235,16 +236,20 @@ class DATA_PT_my_modifiers(MyModifierButtonsPanel, Panel):
         layout = self.layout
 
         ob = context.object
-        md = ob.modifiers[ob.active_modifier_index]
-        box = layout.template_modifier(md)
-        if box:
+        if ob.modifiers:
+            md = ob.modifiers[ob.active_modifier_index]
+            box = layout.box()
+            md_type = md.type
+            md_icon = bpy.types.Modifier.bl_rna.properties['type'].enum_items[md_type].icon
+            row = box.row()
+            row.label(text=md.type, icon = md_icon)
+            row.prop(md, "name", text="")
             # match enum type to our functions, avoids a lookup table.
             getattr(self, md.type)(box, ob, md)
             md.show_expanded = True
-
-    # the md.type enum is (ab)used for a lookup on function names
-    # ...to avoid lengthy if statements
-    # so each type must have a function here.
+            # the md.type enum is (ab)used for a lookup on function names
+            # ...to avoid lengthy if statements
+            # so each type must have a function here.
 
     def ARMATURE(self, layout, ob, md):
         split = layout.split()
